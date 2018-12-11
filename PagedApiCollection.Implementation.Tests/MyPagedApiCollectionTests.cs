@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using PagedApi;
 
@@ -30,5 +31,20 @@ namespace PagedApiCollection.Implementation.Tests
 			// Assert
 			CollectionAssert.AreEqual(expectedItems, actualItems);
 		}
-	}
+
+        [Test]
+        public void GetItems_ToArray_ReturnsEmptyCollection()
+        {
+            // Arrange
+            var expectedItems = new List<Bar>().ToArray();
+
+            _fakePagedApi[ItemTypeId.Foo].AddRange(expectedItems);
+
+            // Act
+            var actualItems = _pagedApiCollection.GetItems<Bar>().ToArray();
+
+            // Assert
+            CollectionAssert.AreEqual(expectedItems, actualItems);
+        }
+    }
 }

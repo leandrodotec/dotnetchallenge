@@ -2,10 +2,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PagedApiCollection
 {
-    public class PagedApiCollectionProxyBaseEnum<TItem> : IEnumerator, IDisposable
+    public class PagedApiCollectionProxyBaseEnum<TItem> : IEnumerator<TItem>, IDisposable
     {
         private IPagedApi _pagedApi;
         private int? _requestId;
@@ -59,14 +60,16 @@ namespace PagedApiCollection
         private  void BeginRequest()
         {
             Type type = typeof(TItem);
-            if (type is Foo)
+            if (type.Equals(typeof(Foo)))
             {
                 BeginRequest(ItemTypeId.Foo);
+                return;
             }
 
-            if (type is Bar)
+            if (type.Equals(typeof(Bar)))
             {
                 BeginRequest(ItemTypeId.Bar);
+                return;
             }
 
             throw new InvalidOperationException("Only compatible with Foo and Bar.");
@@ -87,7 +90,8 @@ namespace PagedApiCollection
                 if (_currentPage == null || _currentPage.HasNextPage)
                 {
                     _currentPage = _pagedApi.GetNextPage(_requestId.Value);
-                    _itemsEnumerator = (IEnumerator<TItem>) _currentPage.Items.GetEnumerator();
+                    var mappedItems = _currentPage.Items.Select(i => (TItem)i).ToList();
+                    _itemsEnumerator = mappedItems.GetEnumerator();
                     return (_itemsEnumerator?.MoveNext() ?? false);
                 }
                 else
