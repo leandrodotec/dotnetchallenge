@@ -12,16 +12,23 @@ namespace PagedApiCollection
         private int? _requestId;
         private IEnumerator<TItem> _itemsEnumerator;
         private Page _currentPage;
+        private bool _disposing;
 
         public PagedApiCollectionProxyBaseEnum(IPagedApi pagedApi)
         {
             _pagedApi = pagedApi;
-            BeginRequest();
+            _disposing = false;
         }
 
         public bool MoveNext()
         {
-            if(_itemsEnumerator == null)
+            if (_disposing)
+                return false;
+
+            if(_requestId == null)
+                BeginRequest();
+
+            if (_itemsEnumerator == null)
             {
                 return MoveNextEnumerator();
             }
@@ -33,14 +40,19 @@ namespace PagedApiCollection
 
         public void Reset()
         {
-            _pagedApi?.EndPagesRequest(_requestId.Value);
-            BeginRequest();
+            if (_requestId.HasValue)
+            {
+                _pagedApi?.EndPagesRequest(_requestId.Value);
+                _requestId = null;
+            }
         }
 
         public TItem Current
         {
             get
             {
+                if (_disposing)
+                    throw new ObjectDisposedException(nameof(PagedApiCollectionProxyBaseEnum<TItem>));
                 try
                 {
                     return _itemsEnumerator.Current;
@@ -54,7 +66,8 @@ namespace PagedApiCollection
 
         public void Dispose()
         {
-            _pagedApi?.EndPagesRequest(_requestId.Value);
+            Reset();
+            _disposing = true;
         }
 
         private  void BeginRequest()

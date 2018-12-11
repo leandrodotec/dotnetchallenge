@@ -6,12 +6,4 @@ namespace PagedApiCollection
 	{
 		IEnumerableDisposable<TItem> GetItems<TItem>();
 	}
-
-    public class PagedApiCollection : IPagedApiCollection
-    {
-        public IEnumerableDisposable<TItem> GetItems<TItem>()
-        {
-            throw new System.NotImplementedException();
-        }
-    }
 }

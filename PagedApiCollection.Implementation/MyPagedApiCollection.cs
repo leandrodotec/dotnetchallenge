@@ -15,7 +15,6 @@ namespace PagedApiCollection.Implementation
 		public IEnumerableDisposable<TItem> GetItems<TItem>()
 		{
             return new PagedIEnumerableDisposable<TItem>(_pagedApi);
-
         }
 	}
 }
